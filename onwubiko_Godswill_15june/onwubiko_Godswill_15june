@@ -1,0 +1,89 @@
+#!/bin/bash
+
+#variable assignment
+TARGET="tryhackme.com"
+DATE=$(date)
+ANALYST="Onwubiko Godswill Chinaecherem"
+
+#function calculation
+Headers() {
+           echo "============HEADER==========="
+           echo "TARGET: $TARGET"
+           echo "DATE: $DATE"
+           echo "ANALYST:$ANALYST"
+}
+
+Headers
+
+whoisfindings() {
+           echo "===========WHO IS FINDINGS==========="
+           echo ""
+           whoisRegistrar=$(whois "$TARGET" | grep -E -i "registrar:|creation Date:|name server:")
+           echo "$whoisRegistrar"
+}
+
+whoisfindings
+
+
+dnsfindings() {
+    echo ""
+    echo "========= DNS FINDINGS==========="
+    
+    # Fetching the Mail Server (MX) records
+    echo "Mail Server (MX Records):"
+    # '+short' cleans the output to show only the priority and mail server address
+    mx_records=$(dig "$TARGET" MX +short )
+    echo "$mx_records"
+    
+    # Fetching Email Security policies (TXT records containing SPF data)
+    echo "Email Security (TXT/SPF Records):"
+    txt_records=$(dig "$TARGET" TXT +short | grep -i "v=spf1")
+    echo "$txt_records"
+}
+
+dnsfindings
+
+subdomainsfound() {
+    echo ""
+    subdomain=$(subfinder -d tryhackme.com)
+    echo "$subdomain"
+
+}
+
+subdomainsfound
+
+
+generate_dork_links() {
+    echo ""
+    echo "===========GOOGLE DORKING FINDS============"
+    echo "site:$TARGET:"
+    echo "site:$TARGET  filetype:pdf"
+    echo "site:$TARGET inurl:login"
+    echo  "intitle site:$TARGET"
+}    
+
+generate_dork_links
+   
+
+
+risk_assessment() {
+    echo ""
+    echo "============ RISK ASSESSMENT============= "
+    echo "Question: What could an attacker do with this information?"
+    echo ""
+    echo "My Review & Assessment:"
+    echo "  As a beginner diving into this assessment, it is eye-opening to see how much an attacker can learn about us without sending a single packet to our servers. "
+    echo "  By just gathering public DNS data and registration records, a threat actor can quietly map out our entire public presence completely under the radar. "
+    echo "  For example, looking at the MX records gives a malicious actor a clear look at exactly who handles our email traffic. "
+    echo "  If our TXT and SPF records aren't locked down tightly, someone could easily impersonate our domain to send dangerous, highly trusted phishing links to our users. "
+    echo "  Finding active subdomains like 'remote' or 'store' is another big win for an attacker because it highlights specific entry points into our network. "
+    echo "  An adversary will immediately target those login portals for password guessing attacks or to look for unpatched vulnerabilities. "
+    echo "  Then there is Google Dorking, which shows that if we aren't careful, search engines will happily index things we meant to keep private. "
+    echo "  A clever search query could expose hidden config files, internal documents, or logs containing sensitive keys without requiring any actual hacking tools. "
+    echo "  Reviewing all of this makes it obvious that these seemingly harmless pieces of public information act as the perfect puzzle pieces for a malicious plan. "
+    echo "  To clean up this footprint, we need to tighten our email validation rules, request search engines to de-index our files, and keep our subdomains hidden from public view."
+    echo "=================================================="
+}
+
+risk_assessment
+
