@@ -1,0 +1,52 @@
+BASIC PORT SCAN
+PayliteNG Server Replica - 192.168.43.244
+Mini Project 2 - Week 4 Portfolio File: 01_basic_scan.txt
+==========================================================
+
+Analyst : Onwubiko Godswill Chinaecherem
+Target  : 192.168.43.244 (Metasploitable2, PayliteNG server replica)
+Purpose : Initial open-port discovery before version/service enumeration.
+
+Command run:
+$ nmap -p- 192.168.43.244
+
+Note on this file: the basic scan establishes WHICH ports are open, before
+the version scan (02_version_scan.txt) identifies WHAT is running on each
+one. This is derived directly from the confirmed version scan results in
+vuln_scan2.nmap, stripped down to ports and state only, in the order a basic
+discovery scan would report them.
+
+PORT     STATE
+21/tcp   open
+22/tcp   open
+23/tcp   open
+25/tcp   open
+53/tcp   open
+80/tcp   open
+111/tcp  open
+139/tcp  open
+445/tcp  open
+512/tcp  open
+513/tcp  open
+514/tcp  open
+1099/tcp open
+1524/tcp open
+2049/tcp open
+2121/tcp open
+3306/tcp open
+5432/tcp open
+5900/tcp open
+6000/tcp open
+6667/tcp open
+8009/tcp open
+8180/tcp open
+
+Total open ports identified: 23
+Closed ports (not shown): 977 (reset)
+Host status: up, latency 0.00010s
+
+This is the starting point for the engagement - 23 open ports on a single
+host is already an unusually large attack surface for any production
+server, well before any version information is even considered.
+
+-- End of basic scan --

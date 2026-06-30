@@ -1,0 +1,124 @@
+CASE NOTES
+PayliteNG Security Assessment - Authentication Incident
+==========================================================
+
+Analyst       : Onwubiko Godswill Chinaecherem
+Role          : Junior Security Consultant (TechRise 3.0 - Abia Cohort 3.0)
+Client        : PayliteNG - Fintech company, Aba, Abia State, Nigeria
+Engagement contact : Mr. Emeka Okafor, IT Manager
+Report recipient   : Mrs. Adaeze Obi, Chief Executive Officer
+Machine / host investigated : PayliteNG Auth/Login server (replica), source log file Hack_001.log
+Date of incident in logs    : 15 February
+Date case opened            : Week 1, TechRise 3.0 programme
+Case reference               : PNG-SEC-2026-001 (carried through to Mini Project 1)
+
+----------------------------------------------------------------
+1. HOW THIS CASE STARTED
+----------------------------------------------------------------
+
+I was brought in as a junior security consultant to PayliteNG after Mr. Okafor
+flagged unusual SSH activity on one of the company's servers. PayliteNG is a
+small fintech operating out of Aba, processing customer payments, so anything
+touching the authentication layer in front of that platform is treated as
+serious by default - this is exactly the kind of company the CBN expects to
+have basic access controls in place.
+
+I was handed one log file to start with - the SSH authentication log covering
+a roughly ten-minute window on the morning of 15 February. My job in Week 1
+was simple on paper but important in practice: read the log properly, work
+out what actually happened, and not assume anything that the log itself
+doesn't support.
+
+----------------------------------------------------------------
+2. WHAT THE LOG SHOWS
+----------------------------------------------------------------
+
+The log covers four separate SSH login attempts from four different IP
+addresses, all within the same ten-minute window (09:00:01 to 09:10:03):
+
+  - 185.10.10.50  -> 5 failed attempts against the "root" account, then nothing
+                     further (no successful login recorded for this IP).
+  - 172.20.1.15   -> 5 failed attempts against "admin", succeeded on the 6th
+                     attempt at 09:01:30, session opened immediately after.
+  - 192.168.50.20 -> 5 failed attempts against "ubuntu", succeeded at 09:03:40,
+                     session opened immediately after.
+  - 203.0.113.77  -> 10 failed attempts against "root", succeeded at 09:06:00,
+                     session opened immediately after.
+  - 10.10.10.15   -> 5 failed attempts against "guest", succeeded at 09:09:00,
+                     session opened immediately after.
+
+So out of five sources hammering the SSH service that morning, four of them
+got in. The one that worries me most is 203.0.113.77, because it's the only
+one that went after root specifically and needed double the attempts of
+everyone else before it succeeded - which still only took six minutes from
+first failed attempt to a fully open root session.
+
+Three sudo events also show up in the log:
+  - alice running "apt update" at 09:02:00 - routine, low-risk.
+  - bob restarting Apache at 09:04:00 - plausible routine maintenance, but
+    worth a follow-up question since it happened mid-incident.
+  - charlie spawning a raw /bin/bash shell via sudo at 09:07:00 - one minute
+    after the root session from 203.0.113.77 opened. This is the line that
+    stood out to me the most. It could be entirely legitimate admin work, or
+    it could be the same actor pivoting under a second account. The log alone
+    can't tell us which, so I've flagged it rather than guessed.
+
+All four active sessions (admin, ubuntu, root, guest) close within the same
+four-second window at the end of the log (09:10:00-09:10:03), which is an odd
+coincidence on its own - real independent users rarely log off in near-perfect
+sync like that.
+
+----------------------------------------------------------------
+3. WHY THIS MATTERS FOR PAYLITENG SPECIFICALLY
+----------------------------------------------------------------
+
+This isn't a generic "someone tried to log in" log. The fact that root itself
+was reachable directly over SSH, and that a basic password-guessing attempt
+walked straight through it in under six minutes with no lockout or alert, is
+the actual story here. For a fintech company under CBN oversight, having an
+unauthenticated path to full administrative control - even briefly, even on a
+test/replica host - is the kind of thing that has to be written up properly
+and escalated, not quietly patched and forgotten.
+
+I don't have visibility yet into what was done with that root access after
+the session opened (no file-level or database logging was active at the
+time), so I'm not claiming customer data was touched. I'm also not ruling it
+out. That gap is one of my standing recommendations going forward - get
+proper logging in place so the next incident doesn't have this same blind
+spot.
+
+----------------------------------------------------------------
+4. HOW I HANDLED THE EVIDENCE
+----------------------------------------------------------------
+
+The log file (payliteng_auth.log in this submission, originally referenced as
+Hack_001.log / class_fn.log in earlier coursework) is the only forensic
+artefact I currently have for this host. I locked it down early using
+chmod 600 so that only the file owner can read it - the same principle that
+underlies chain of custody in a real investigation: if I can't show the
+evidence was protected from the moment I found it, I can't credibly claim it
+wasn't altered later.
+
+Every command I ran against this log (grep, awk, sort, uniq -c) is recorded
+in my Week 3 portfolio files and reproduced with its actual output in the
+Mini Project 1 report - I have made a point throughout this engagement of
+never writing up a finding I can't trace back to a specific log line or
+command output.
+
+----------------------------------------------------------------
+5. STATUS / NEXT STEPS
+----------------------------------------------------------------
+
+- Mini Project 1 (Security Assessment) - complete: asset inventory, threat
+  actor profile (@gr4yh4t), STRIDE model of the customer login portal, risk
+  matrix, and five specific recommendations delivered to Mr. Okafor's team.
+- Mini Project 2 (Penetration Test) - in progress against the PayliteNG
+  server replica (Metasploitable2, 192.168.43.244), building on the same
+  "root access = critical" theme found in this log.
+- Outstanding question for Mr. Okafor's team: confirm whether charlie's
+  sudo /bin/bash at 09:07:00 was planned administrative work.
+- Recommendation already raised: this server replica should not be the only
+  source of truth for future incidents - centralised, tamper-resistant
+  logging needs to be in place before the next review.
+
+-- End of case notes --

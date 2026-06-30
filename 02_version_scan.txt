@@ -1,0 +1,76 @@
+VERSION/SERVICE SCAN
+PayliteNG Server Replica - 192.168.43.244
+Mini Project 2 - Week 4 Portfolio File: 02_version_scan.txt
+==========================================================
+
+Analyst : Onwubiko Godswill Chinaecherem
+Target  : 192.168.43.244 (Metasploitable2, PayliteNG server replica)
+Purpose : Service and version fingerprinting of every port found open in
+          01_basic_scan.txt - this is the scan that identifies vsftpd 2.3.4
+          on port 21, the headline finding of Mini Project 2.
+
+Command run (verbatim from vuln_scan2.nmap):
+/usr/lib/nmap/nmap --privileged -sV -oA vuln_scan2 192.168.43.244
+
+Full unedited output:
+
+# Nmap 7.99 scan initiated Wed Jun 17 21:42:53 2026 as: /usr/lib/nmap/nmap --privileged -sV -oA vuln_scan2 192.168.43.244
+Nmap scan report for 192.168.43.244
+Host is up (0.00010s latency).
+Not shown: 977 closed tcp ports (reset)
+PORT     STATE SERVICE     VERSION
+21/tcp   open  ftp         vsftpd 2.3.4
+22/tcp   open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+23/tcp   open  telnet      Linux telnetd
+25/tcp   open  smtp        Postfix smtpd
+53/tcp   open  domain      ISC BIND 9.4.2
+80/tcp   open  http        Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+111/tcp  open  rpcbind     2 (RPC #100000)
+139/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+512/tcp  open  exec        netkit-rsh rexecd
+513/tcp  open  login       OpenBSD or Solaris rlogind
+514/tcp  open  tcpwrapped
+1099/tcp open  java-rmi    GNU Classpath grmiregistry
+1524/tcp open  bindshell   Metasploitable root shell
+2049/tcp open  nfs         2-4 (RPC #100003)
+2121/tcp open  ftp         ProFTPD 1.3.1
+3306/tcp open  mysql       MySQL 5.0.51a-3ubuntu5
+5432/tcp open  postgresql  PostgreSQL DB 8.3.0 - 8.3.7
+5900/tcp open  vnc         VNC (protocol 3.3)
+6000/tcp open  X11         (access denied)
+6667/tcp open  irc         UnrealIRCd
+8009/tcp open  ajp13       Apache Jserv (Protocol v1.3)
+8180/tcp open  http        Apache Tomcat/Coyote JSP engine 1.1
+MAC Address: 08:00:27:7C:02:9D (Oracle VirtualBox virtual NIC)
+Service Info: Hosts: metasploitable.localdomain, irc.Metasploitable.LAN; OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Wed Jun 17 21:43:05 2026 -- 1 IP address (1 host up) scanned in 12.01 seconds
+
+----------------------------------------------------------------
+KEY FINDINGS FROM THIS SCAN
+----------------------------------------------------------------
+
+- Port 21/tcp: vsftpd 2.3.4 - confirmed backdoored version (CVE-2011-2523),
+  primary finding of Mini Project 2.
+- Port 1524/tcp: "Metasploitable root shell" bindshell - listening shell
+  with no authentication at all.
+- Port 6667/tcp: UnrealIRCd - version range associated with the 2010
+  trojanised UnrealIRCd source archive (CVE-2010-2075).
+- Port 139/445: Samba smbd 3.X-4.X - version range affected by CVE-2007-2447
+  (username map script command execution).
+- Port 80/tcp: Apache httpd 2.2.8 with DAV/2 module advertised in the
+  banner itself - Finding 003 of Mini Project 2.
+- Ports 512/513: netkit-rsh rexecd / rlogind - clear-text remote
+  login/execution protocols with no modern equivalent justification for
+  remaining enabled.
+
+This single scan, run once against one host, surfaced enough material for
+three full documented findings plus a further nine services flagged in the
+Mini Project 2 findings summary table - which is itself the point: version
+fingerprinting alone, with no exploitation yet attempted, already tells a
+trained analyst almost everything they need to know about this host's risk
+profile.
+
+-- End of version scan --

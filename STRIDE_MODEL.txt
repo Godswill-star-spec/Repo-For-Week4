@@ -1,0 +1,113 @@
+STRIDE THREAT MODEL
+PayliteNG - Customer Login Portal
+Document title: "PayliteNG Pure Black White"
+==========================================================
+
+Analyst        : Onwubiko Godswill Chinaecherem, Junior Security Consultant
+Client         : PayliteNG - Aba, Abia State, Nigeria
+Subject system : Customer Login Portal / Authentication Infrastructure
+Reference      : PNG-SEC-2026-001 (Mini Project 1)
+
+----------------------------------------------------------------
+WHY STRIDE, AND WHY THIS SYSTEM
+----------------------------------------------------------------
+
+STRIDE breaks security threats down into six categories - Spoofing,
+Tampering, Repudiation, Information Disclosure, Denial of Service, and
+Elevation of Privilege. I applied it here to PayliteNG's customer login
+portal because that is the exact authentication layer implicated in the
+15 February incident documented in case_notes.txt and payliteNG_auth.log -
+this isn't a generic textbook exercise, it's the same system that was
+actually breached.
+
+For each of the six letters below I have named one realistic,
+PayliteNG-specific threat and one control that addresses it, rather than a
+generic example that could apply to any company.
+
+----------------------------------------------------------------
+THE SIX CATEGORIES
+----------------------------------------------------------------
+
+S - SPOOFING
+  Threat : An attacker impersonates a legitimate customer or, as observed in
+           this incident, impersonates the root administrator by guessing
+           valid credentials and authenticating as that identity. This is
+           exactly what happened when 203.0.113.77 guessed the root password
+           on its tenth attempt.
+  Control: Enforce multi-factor authentication (MFA) on all administrative
+           accounts and on customer login where feasible; disable direct
+           root login entirely.
+
+T - TAMPERING
+  Threat : Once authenticated (as happened here), an attacker with shell
+           access could modify transaction records, account balances, or
+           application configuration files on the server.
+  Control: File integrity monitoring (e.g. AIDE or Tripwire) on critical
+           configuration and application directories, with alerts on any
+           unauthorised change.
+
+R - REPUDIATION
+  Threat : A compromised shared or guessable account (such as root, used
+           here) makes it impossible to prove who actually performed an
+           action, since the log shows "root" rather than a named
+           individual.
+  Control: Eliminate shared/root logins; require named accounts with sudo,
+           and enable centralised, tamper-resistant audit logging (e.g.
+           forwarding the auth log to a remote syslog/SIEM collector).
+
+I - INFORMATION DISCLOSURE
+  Threat : Failed login attempts and account names are currently visible in
+           plaintext logs without restricted access; an attacker who later
+           pivots to the logging host could learn which accounts exist and
+           were targeted.
+  Control: Restrict log file permissions to root/admin only (chmod 600 or
+           equivalent) and encrypt log data in transit if shipped off-host.
+           (This is the same principle applied directly to
+           payliteNG_auth.log in this case - see case_notes.txt, Section 4.)
+
+D - DENIAL OF SERVICE
+  Threat : The same brute-force technique used here, run at higher volume or
+           against the login portal's web form rather than SSH, could
+           exhaust login-handling resources and lock out legitimate
+           customers.
+  Control: Rate limiting and progressive lockout (e.g. Fail2Ban for SSH;
+           application-layer throttling for the web login form) tuned to
+           block after a small number of failures per IP.
+
+E - ELEVATION OF PRIVILEGE
+  Threat : A standard account (charlie) was observed using sudo to spawn an
+           unrestricted shell (/bin/bash) at 09:07:00, one minute after the
+           root session opened. If that account were itself compromised
+           rather than legitimate, this hands an attacker full system
+           control.
+  Control: Apply least-privilege sudoers rules - grant only the specific
+           commands a role needs, never blanket /bin/bash access - and
+           log/alert on any sudo invocation of a shell.
+
+----------------------------------------------------------------
+HOW THIS MODEL CARRIES INTO MINI PROJECT 2
+----------------------------------------------------------------
+
+This STRIDE model was not a one-off exercise - it directly shaped which
+findings mattered most in the Mini Project 2 penetration test against the
+PayliteNG server replica (Metasploitable2, 192.168.43.244):
+
+  - The vsftpd 2.3.4 backdoor (CVE-2011-2523) and the open bindshell on
+    1524/tcp both map to Elevation of Privilege - a single network request
+    results in full administrative control with no privilege check at all,
+    the same category that the charlie sudo /bin/bash event was flagged
+    under above.
+  - Anonymous FTP access maps to Information Disclosure - any unauthenticated
+    party can browse the file system, the same category covering the
+    plaintext log exposure above.
+  - The outdated Apache 2.2.8/WebDAV stack maps to Tampering and Information
+    Disclosure, since WebDAV PUT/DELETE methods can permit unauthorised file
+    modification where access controls are weak.
+
+Keeping the same six-letter framework across both Mini Projects is
+deliberate: it means PayliteNG's leadership sees one consistent risk
+language running from the authentication-layer incident through to the
+full server-level penetration test, rather than two disconnected reports
+using different vocabularies for the same underlying problem.
+
+-- End of STRIDE model --

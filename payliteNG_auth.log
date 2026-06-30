@@ -1,0 +1,57 @@
+Feb 15 09:00:01 sshd: Failed password for root from 185.10.10.50 port 22
+Feb 15 09:00:02 sshd: Failed password for root from 185.10.10.50 port 22
+Feb 15 09:00:03 sshd: Failed password for root from 185.10.10.50 port 22
+Feb 15 09:00:04 sshd: Failed password for root from 185.10.10.50 port 22
+Feb 15 09:00:05 sshd: Failed password for root from 185.10.10.50 port 22
+
+Feb 15 09:01:00 sshd: Failed password for admin from 172.20.1.15 port 22
+Feb 15 09:01:01 sshd: Failed password for admin from 172.20.1.15 port 22
+Feb 15 09:01:02 sshd: Failed password for admin from 172.20.1.15 port 22
+Feb 15 09:01:03 sshd: Failed password for admin from 172.20.1.15 port 22
+Feb 15 09:01:04 sshd: Failed password for admin from 172.20.1.15 port 22
+
+Feb 15 09:01:30 sshd: Accepted password for admin from 172.20.1.15 port 22
+Feb 15 09:01:31 sshd: session opened for user admin from 172.20.1.15
+
+Feb 15 09:02:00 sudo: alice : TTY=pts/0 ; COMMAND=/usr/bin/apt update
+
+Feb 15 09:03:10 sshd: Failed password for ubuntu from 192.168.50.20 port 22
+Feb 15 09:03:11 sshd: Failed password for ubuntu from 192.168.50.20 port 22
+Feb 15 09:03:12 sshd: Failed password for ubuntu from 192.168.50.20 port 22
+Feb 15 09:03:13 sshd: Failed password for ubuntu from 192.168.50.20 port 22
+Feb 15 09:03:14 sshd: Failed password for ubuntu from 192.168.50.20 port 22
+
+Feb 15 09:03:40 sshd: Accepted password for ubuntu from 192.168.50.20 port 22
+Feb 15 09:03:41 sshd: session opened for user ubuntu from 192.168.50.20
+
+Feb 15 09:04:00 sudo: bob : TTY=pts/1 ; COMMAND=/usr/bin/systemctl restart apache2
+
+Feb 15 09:05:00 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:01 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:02 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:03 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:04 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:05 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:06 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:07 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:08 sshd: Failed password for root from 203.0.113.77 port 22
+Feb 15 09:05:09 sshd: Failed password for root from 203.0.113.77 port 22
+
+Feb 15 09:06:00 sshd: Accepted password for root from 203.0.113.77 port 22
+Feb 15 09:06:01 sshd: session opened for user root from 203.0.113.77
+
+Feb 15 09:07:00 sudo: charlie : TTY=pts/2 ; COMMAND=/bin/bash
+
+Feb 15 09:08:00 sshd: Failed password for guest from 10.10.10.15 port 22
+Feb 15 09:08:01 sshd: Failed password for guest from 10.10.10.15 port 22
+Feb 15 09:08:02 sshd: Failed password for guest from 10.10.10.15 port 22
+Feb 15 09:08:03 sshd: Failed password for guest from 10.10.10.15 port 22
+Feb 15 09:08:04 sshd: Failed password for guest from 10.10.10.15 port 22
+
+Feb 15 09:09:00 sshd: Accepted password for guest from 10.10.10.15 port 22
+Feb 15 09:09:01 sshd: session opened for user guest from 10.10.10.15
+
+Feb 15 09:10:00 sshd: session closed for user admin from 172.20.1.15
+Feb 15 09:10:01 sshd: session closed for user ubuntu from 192.168.50.20
+Feb 15 09:10:02 sshd: session closed for user root from 203.0.113.77
+Feb 15 09:10:03 sshd: session closed for user guest from 10.10.10.15

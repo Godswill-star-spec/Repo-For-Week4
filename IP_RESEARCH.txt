@@ -1,0 +1,138 @@
+IP RESEARCH
+PayliteNG Engagement - All IP Addresses Identified Across Mini Project 1 & 2
+==========================================================================
+
+Analyst: Onwubiko Godswill Chinaecherem
+Source material: payliteNG_auth.log (Week 1/Mini Project 1) and vuln_scan2.nmap
+(Week 4/Mini Project 2)
+
+This file lists every IP address that actually appears in PayliteNG case
+evidence, with notes on what each one did and what kind of address it is.
+Where a WHOIS/AbuseIPDB-style lookup is relevant, I've noted what that lookup
+would typically show for an address in that range and flagged it clearly as
+such rather than presenting it as a live result, since this is a training lab
+and these addresses are documentation/example ranges, not real attacker
+infrastructure.
+
+----------------------------------------------------------------
+1. SOURCE IPs FROM THE AUTHENTICATION LOG (payliteNG_auth.log)
+----------------------------------------------------------------
+
+IP: 185.10.10.50
+  - Activity   : 5 failed SSH password attempts against "root", 09:00:01-
+                 09:00:05. No successful login recorded for this address.
+  - Address type: Public IP range. In a real investigation this range would
+                 be checked against AbuseIPDB and a RIPE WHOIS lookup to
+                 confirm ownership/hosting provider and abuse history.
+  - Note       : This IP went straight for root and stopped after 5 attempts
+                 with no success - consistent with an automated scanner
+                 moving on to the next target rather than a focused attacker.
+
+IP: 172.20.1.15
+  - Activity   : 5 failed attempts against "admin", succeeded on the 6th
+                 attempt at 09:01:30. Session opened immediately after.
+  - Address type: Private/internal range (RFC 1918, 172.16.0.0/12). This is
+                 NOT a public, routable address - it indicates this attempt
+                 originated from inside PayliteNG's own internal network or
+                 lab segment, not from the open internet.
+  - Note       : Because this is an internal address, this could be a
+                 legitimate (if poorly secured) internal login, or it could
+                 be lateral movement from another already-compromised host
+                 on the internal network. Worth a direct question to
+                 Mr. Okafor's team about what device normally sits on
+                 172.20.1.15.
+
+IP: 192.168.50.20
+  - Activity   : 5 failed attempts against "ubuntu", succeeded at 09:03:40.
+                 Session opened immediately after.
+  - Address type: Private/internal range (RFC 1918, 192.168.0.0/16). Also not
+                 a public, routable address - same internal-network caveat as
+                 172.20.1.15 above.
+  - Note       : Same logic applies - confirm with PayliteNG whether this
+                 host is a known internal machine.
+
+IP: 203.0.113.77
+  - Activity   : 10 failed attempts against "root" (double the volume of
+                 every other source IP), succeeded at 09:06:00. Session
+                 opened immediately after. This is the most serious entry in
+                 the log - the only external-looking address that
+                 successfully authenticated as root.
+  - Address type: 203.0.113.0/24 is one of three blocks reserved by IANA
+                 specifically for use in documentation and examples (RFC
+                 5737) - it is never actually routed on the live internet.
+                 In this lab exercise it stands in for what would otherwise
+                 be flagged as a likely commercial VPS/proxy IP rather than
+                 a residential connection, which is consistent with how this
+                 finding is described in the Mini Project 1 threat actor
+                 profile.
+  - Note       : This is the address the @gr4yh4t threat actor profile in
+                 Mini Project 1 is built around. In a real engagement this
+                 would be the priority lookup target on AbuseIPDB, VirusTotal,
+                 and a WHOIS registry.
+
+IP: 10.10.10.15
+  - Activity   : 5 failed attempts against "guest", succeeded at 09:09:00.
+                 Session opened immediately after.
+  - Address type: Private/internal range (RFC 1918, 10.0.0.0/8). Not a
+                 public, routable address.
+  - Note       : Third internal-looking source IP in this log. The pattern of
+                 three internal addresses and one external address all
+                 succeeding in the same ten-minute window is itself worth
+                 flagging - it suggests either weak controls being tested
+                 from multiple angles at once, or several different actors
+                 (internal and external) probing the same host independently.
+
+----------------------------------------------------------------
+2. TARGET IP FROM THE PENETRATION TEST (vuln_scan2.nmap)
+----------------------------------------------------------------
+
+IP: 192.168.43.244
+  - Role        : This is not an attacker IP - it is the PayliteNG server
+                 replica itself, the authorised target of the Mini Project 2
+                 Nmap scan and penetration test.
+  - Address type: Private/internal range (RFC 1918, 192.168.0.0/16) -
+                 consistent with a lab/VirtualBox host, not a public-facing
+                 production address.
+  - Environment : Metasploitable2, MAC address 08:00:27:7C:02:9D (Oracle
+                 VirtualBox virtual NIC), hostnames observed:
+                 metasploitable.localdomain, irc.Metasploitable.LAN.
+  - Note        : 21 open ports identified on this single host, including
+                 the vsftpd 2.3.4 backdoor (CVE-2011-2523) documented as
+                 Finding 001 in Mini Project 2.
+
+----------------------------------------------------------------
+3. ASSIGNMENT TEMPLATE IP (FOR REFERENCE ONLY)
+----------------------------------------------------------------
+
+IP: 185.220.101.47
+  - Status      : This address is named in the Week 1-4 assignment brief as
+                 an example for the Week 2 WHOIS/AbuseIPDB exercise. It does
+                 not appear anywhere in my actual class_fn.log / payliteng
+                 auth log, my Mini Project 1 report, or my Mini Project 2
+                 scan output, so no PayliteNG-specific finding is attached to
+                 it.
+  - Address type: This range is publicly associated in threat-intel
+                 community reporting with Tor exit node infrastructure -
+                 flagging this here for completeness against the assignment
+                 template, not as a confirmed finding against PayliteNG,
+                 since it never appears in any PayliteNG log evidence I hold.
+  - Recommendation: If this address is meant to be tied to a specific
+                 PayliteNG log line in the Week 2 lab pack, that log line
+                 should be confirmed with the instructor so this entry can be
+                 properly evidenced rather than left as a standalone lookup.
+
+----------------------------------------------------------------
+4. SUMMARY TABLE
+----------------------------------------------------------------
+
+IP Address        | Type              | Result in Log        | Relevance
+-------------------|-------------------|-----------------------|------------------------------
+185.10.10.50       | Public            | Failed only (5x)      | Probed root, no success
+172.20.1.15        | Private (internal)| Succeeded (admin)     | Possible internal account misuse
+192.168.50.20      | Private (internal)| Succeeded (ubuntu)    | Possible internal account misuse
+203.0.113.77       | Public (RFC 5737) | Succeeded (root)      | Primary incident - @gr4yh4t profile
+10.10.10.15        | Private (internal)| Succeeded (guest)     | Possible internal account misuse
+192.168.43.244     | Private (internal)| N/A - test target     | PayliteNG server replica (Mini Project 2)
+185.220.101.47     | Public (Tor exit) | Not present in evidence| Assignment template only, unconfirmed
+
+-- End of IP research --
